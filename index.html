@@ -1,0 +1,1236 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Future JavaScript: ES6, ES7 and Beyond &ndash; Bartek Swierczynski</title>
+
+		<meta name="author" content="Bartek Swiercznski">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+        
+        <style>
+            .reveal code {
+                font-family: "Courier New", monospace;
+            }
+            
+            .reveal .slides {
+                text-align: left;
+            }
+            
+            .reveal pre {
+                width: 100%;
+                white-space: normal;
+            }
+            
+            .reveal pre code {
+                max-height: 100%;
+                display: block;
+                white-space: pre;
+            }
+            
+            .reveal pre.long {
+                font-size: 0.525em;
+            }
+            
+            .reveal pre .overlaid code,
+            .reveal pre code.overlaid {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                background: transparent;
+            }
+            
+            .reveal pre .overlaid.usage {
+                background: rgba(255, 255, 255, 0.1);
+                left: auto;
+                right: 0;
+                padding-left: 0.5em;
+                padding-top: 0.5em;
+                color: #aaa;
+                overflow: visible;
+            }
+            
+            .reveal pre .overlaid.usage:before {
+                background: rgba(255, 255, 255, 0.1);
+                content: "Usage:";
+                text-transform: uppercase;
+                color: #aaa;
+                font-family: "League Gothic", "Impact", sans-serif;
+                position: absolute;
+                bottom: 100%;
+                letter-spacing: 0.02em;
+                text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
+                font-size: 1.5em;
+                padding: 0.33em 0.33em 0;
+                margin-left: -0.33em;
+            }
+            
+            .reveal pre [data-es]:before {
+                position: absolute;
+                padding: 0.1em 0.25em;
+                top: 0;
+                right: 0;
+                color: #333;
+            }
+            
+            .reveal pre [data-es~=es5]:before {
+                content: "ES5";
+                background: #34be34;
+            }
+            
+            .reveal pre [data-es~=es6]:before {
+                content: "ES6";
+                background: #fbde34;
+            }
+            
+            .reveal .slides section .fragment.del {
+                opacity: 1;
+            }
+            
+            .reveal .slides section .fragment.del.visible,
+            .reveal .slides [data-no-longer-broken] {
+                text-decoration: line-through;
+                opacity: 0.6;
+            }
+            
+            .reveal .slides h3[data-no-longer-broken] {
+                font-size: 1em;
+            }
+            
+            .reveal .slides h3[data-no-longer-broken] + h3 {
+                margin-bottom: 0.75em;
+            }
+            
+            .reveal .slides h3 code {
+                text-transform: none;
+                font-size: 1.2em;
+            }
+            
+            .reveal .slides h3 ins {
+                text-decoration: none;
+                border-bottom: 0.1em solid rgba(255, 255, 255, 1);
+            }
+            
+            .reveal .slides [data-fix]:before {
+                content: attr(data-fix) " fix: ";
+            }
+            
+        </style>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Future JavaScript</h1>
+                    <h2>Fixing the Annoying Parts</h2>
+					<p>
+						<small>by Bartek Swierczynski / <a href="http://twitter.com/bswierczynski">@bswierczynski</a></small>
+					</p>
+				</section>
+                
+                <section>
+                    <h2>After this presentation&hellip;</h2>
+                    <h3>I hope you'll be grateful we'll have ES6.</h3>
+                </section>
+                    
+                <section>
+                    <h3>ToC, a.k.a. JavaScript, the embarrassing parts</h3>
+                    <ul>
+                        <li>Global by default</li>
+                        <li>No array foreach loop</li>
+                        <li>Broken isNaN()</li>
+                        <li>Verbose function syntax</li>
+                        <li>Loss of the <code>this</code> context</li>
+                        <li>Only functions scope, no block scope</li>
+                        <li>Lack of string methods</li>
+                        <li>Hard time printing strings</li>
+                        <li>No dymic keys in object literals</li>
+                        <li>Lack of support for declaring object shape</li>
+                        <li>Prototypes and private state don't mix</li>
+                        <li>'arguments' sux</li>
+                        <li>No maps or other generic containers</li>
+                        <li>Repeating 'use strict' all over again</li>
+                    </ul>
+                </section>
+                    
+                <section>
+                    <h3>Global by default</h3>
+                    <pre><code class="javascript" data-es="es5"
+>function init() {
+    var foo = 100;
+    bar = 42;
+}
+init();
+                    </code>
+                    <code class="fragment overlaid">
+console.log(bar);</code>
+                    <code class="fragment overlaid">
+                  //Logs: 42</code>
+                    </pre>
+                    <p class="fragment">Forgetting <code>var</code> declares a global variable.</p>
+                </section>
+                    
+                <section>
+                    <h3 data-no-longer-broken><del>Global by default</del></h3>
+                    <h3 data-fix="es5 strict"><ins>Declaration required</ins></h3>
+                    <pre><code class="javascript" data-es="es5"
+>function init() {
+    "use strict";
+    var foo = 100;
+    bar = 42;
+}
+init();
+console.log(bar);</code>
+                    <code class="fragment overlaid">
+        //ReferenceError: bar is not defined
+                    </code>
+                    </pre>
+                    <p class="fragment">Forgetting <code>var</code> throws in Strict Mode.</p>
+                </section>
+                
+                    
+                <section>
+                    <h3>No Array foreach loop</h3>
+                    <p>We only have the good ol' for loop:</p>
+                    <pre><code data-trim class="javascript" data-es="es3">
+var arr = ["foo", "bar", "baz"];
+for (var i = 0; i &lt; arr.length; i++) {
+    var value = arr[i];
+    console.log("#" + i + ": " + value);
+}
+                    </code></pre>
+                    <div class="fragment">
+                        <pre class="fragment del"><code data-trim class="javascript" data-es="es3">
+var arr = ["foo", "bar", "baz"];
+for (var i in arr) {
+    var value = arr[i];
+    console.log("#" + i + ": " + value);
+}
+                        </code></pre>
+                        <div class="fragment">
+                            <p>Don't use <code>for..in</code> on arrays!</p>
+                            <ul>
+                                <li>Does not guarantee order</li>
+                                <li>Iterates over all enumerable properties, not only indexes</li>
+                                <li>Iterates over inherited properties, too</li>
+                            </ul>
+                            <p class="fragment"><strong>And I mean it! Don't!</strong></p>
+                        </div>
+                    </div>
+                </section>
+                    
+                <section>
+                    <h3 data-no-longer-broken>
+                        <del>No Array foreach loop</del></h3>
+                    <h3 data-fix="es5"><ins>Array extras: <code>.forEach()</code></ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es5">
+var arr = ["foo", "bar", "baz"];
+arr.forEach(function(value, i) {
+    console.log("#" + i + ": " + value);
+});
+                    </code></pre>
+                    <p class="fragment">Still much slower than a for loop.</p>
+                </section>
+                    
+                <section>
+                    <h3 data-no-longer-broken><del>No Array foreach loop</del></h3>
+                    <h3 data-fix="es6"><ins><code>for-of</code></ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es6">
+var arr = ["foo", "bar", "baz"];
+for (var [i, value] of arr) {
+    console.log("#" + i + ": " + value);
+}
+                    </code></pre>
+                    <div class="fragment">
+                        <p>Or, when you just need the value:</p>
+                        <pre><code data-trim class="javascript" data-es="es6">
+var arr = ["foo", "bar", "baz"];
+for (var value of arr) {
+    console.log(value);
+}
+                        </code></pre>
+                    </div>
+                </section>
+
+                    
+                    
+                    
+                    
+                <section>
+                    <h3>Broken <code>isNaN()</code></h3>
+                    <pre><code data-trim class="javascript" data-es="es5">
+isNaN(NaN);   // true
+isNaN(123);   // false
+isNaN("123"); // false
+                    </code></pre>
+                    <div class="fragment">
+                        <pre><code data-trim class="javascript" data-es="es5">
+isNaN("abc");
+                        </code>
+                        <code class="fragment javascript overlaid"
+>              // true</code>
+                        </pre>
+                        <p class="fragment">The global <code>isNaN(v)</code> function returns
+                        <code>true</code> not only if <code>v</code> is <code>NaN</code>,
+                        but also if it cannot be parsed as a Number.</p>
+                    </div>
+                    <div class="fragment">
+                        <p>To make things even more funny&hellip;</p>
+                        <pre><code data-trim class="javascript" data-es="es5">
+var n = NaN;
+n == NaN;  // false
+n === NaN; // false
+                        </code></pre>
+                        <p><code>NaN</code> is not equal to anything, including <code>NaN</code>.</p>
+                    </div>
+                    
+                </section>
+                    
+                <section>
+                    <h3 data-no-longer-broken><del>Broken <code>isNaN()</code></del></h3>
+                    <h3 data-fix="es6"><ins><code>Number.isNaN()</code></ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es6">
+Number.isNaN(NaN);   // true
+Number.isNaN(123);   // false
+Number.isNaN("123"); // false
+Number.isNaN("abc"); // false
+                    </code></pre>
+                    <p>Returns <code>true</code> only for <code>NaN</code>.</p>
+                </section> 
+                    
+                    
+                    
+                    
+                <section>
+                    <h3>Verbose function syntax</h3>
+                    <pre class="fragment"><code data-trim class="javascript" data-es="es5">
+var decentRates = employees
+        .map(function(emp) {
+            return emp.getDailyRate();
+        })
+        .filter(function(rate) {
+            return rate >= 1500;
+        });
+                    </code></pre>
+
+                    <pre class="fragment"><code data-trim class="javascript" data-es="es5">
+describe("Stack", function() {
+    given(function() { this.stack = new Stack() })
+    when (function() { this.stack.push("foo")   })
+    then (function() { return this.stack.length === 1  })
+})
+                    </code></pre>
+                </section>
+                
+                <section>
+                    <h3 data-no-longer-broken>Verbose function syntax</h3>
+                    <h3 data-fix="es6"><ins>Arrow functions</ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es6">
+var decentRates = employees
+        .map( (emp) => emp.getDailyRate() )
+        .filter( (rate) => rate >= 1500 )
+;
+                    </code></pre>
+                    <pre><code data-trim class="javascript" data-es="es6">
+describe("Stack", () => {
+    given(() => this.stack = new Stack() )
+    when (() => this.stack.push("foo")   )
+    then (() => this.stack.length === 1  )
+})
+                    </code></pre>
+                    <ul class="fragment">
+                        <li>Compact definition</li>
+                        <li>Automaticcaly return the value of the last statement</li>
+                        <li>Parens around argument list are required</li>
+                        <li>Braces around the body are optional if there's only one statement</li>
+                        <li>Cannot be used as constructors (with <code>new</code>)</li>
+                    </ul>
+                </section> 
+                    
+
+                    
+
+                
+                <section>
+                    <h3>Loss of the <code>this</code> context</h3>
+                    <pre class="fragment"><code data-trim class="javascript" data-es="es5">
+function AutoSlidingGallery($slides) {
+    var slideIndex = 0;
+    
+    setInterval(function() {
+        this.switchToSlideAt(slideIndex);
+        slideIndex = (slideIndex + 1) % $slides.length;
+    }, 2000);
+    
+    this.switchToSlideAt = function() { /* ... */ };
+}
+                    </code></pre>
+                    <div class="fragment">
+                        <p>Boom! Cannot call <code>this.switchToSlideAt()</code> in the anonymous function
+                        since <code>this</code> no longer points to the gallery.</p>
+                    </div>
+                    <p class="fragment">It points to the global object in sloppy mode and to <code>undefined</code>
+                        in strict mode.</p>
+                </section>
+
+                <section>
+                    <h3>Loss of the <code>this</code> context</h3>
+                    <p>Fortunately, there are some fixes (still, mildly annoying):</p>
+                    <pre><code data-trim class="javascript" data-es="es5">
+function AutoSlidingGallery($slides) {
+    var that = this;
+    var slideIndex = 0;
+    
+    setInterval(function() {
+        that.switchToSlideAt(slideIndex);
+        slideIndex = (slideIndex + 1) % $slides.length;
+    }, 2000);
+    
+    this.switchToSlideAt = function() { /* ... */ };
+}
+                    </code></pre>
+                    <div class="fragment">
+                    <pre><code data-trim class="javascript" data-es="es5">
+function AutoSlidingGallery($slides) {
+    var slideIndex = 0;
+    
+    setInterval(function() {
+        this.switchToSlideAt(slideIndex);
+        slideIndex = (slideIndex + 1) % $slides.length;
+    }.bind(this), 2000);
+    
+    this.switchToSlideAt = function() { /* ... */ };
+}
+                    </code></pre>
+                    </div>
+                </section>
+                
+                <section>
+                    <h3 data-no-longer-broken><del>Loss of the <code>this</code> context</del></h3>
+                    <h3 data-fix="es6"><ins>Arrow functions have lexical context</ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es6">
+function AutoSlidingGallery($slides) {
+    var slideIndex = 0;
+    
+    setInterval( () => {
+        this.switchToSlideAt(slideIndex);
+        slideIndex = (slideIndex + 1) % $slides.length;
+    }, 2000);
+    
+    this.switchToSlideAt = function() { /* ... */ };
+}
+                    </code></pre>
+                    <p>In arrow functions, <code>this</code> always points to the <code>this</code>
+                    of the outer scope.</p>
+                </section>
+
+                
+                
+                
+                
+                <section>
+                    <h3>Only functions scope, no block scope</h3> 
+                    <pre><code data-trim class="javascript" data-es="es5">
+function init(slideElems) {
+    var numberOfSlides = 3;
+    for (var i = 0; i &lt; numberOfSlides; i++) {
+        var index = i;
+        slideElems[index].addEventListener("click", function() {
+            switchToSlideAt(index);
+        });
+    }
+    
+    function switchToSlideAt(slideIndex) {
+        // ...
+    }
+}
+                    </code></pre>
+                    <div class="fragment">
+                        <p>Bad! Clicking on any slide will call <code>switchToSlideAt(3)</code>
+                        because <code>3</code> is the last value of the <code>index</code> variable.</p>
+                        <p>There's only 1 copy of <code>index</code> per call to <code>init()</code>.</p>
+                    </div>
+                </section>
+                    
+                <section>
+                    <h3 data-no-longer-broken><del>Only functions scope, no block scope</del></h3>
+                    <h3 data-fix="es6"><ins><code>let</code> has block scope</ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es5">
+function init(slideElems) {
+    var numberOfSlides = 3;
+    for (var i = 0; i &lt; numberOfSlides; i++) {
+        let index = i;
+        slideElems[index].addEventListener("click", function() {
+            switchToSlideAt(index);
+        });
+    }
+    // index is not visible here
+    
+    function switchToSlideAt(slideIndex) {
+        // ...
+    }
+}
+                    </code></pre>
+                    <div class="fragment">
+                        <p>Good! There's one copy of the <code>index</code> variable per block (per each turn of the for loop).</p>
+                    </div>
+                </section>
+                    
+                <section>
+                    <h3>ES6 <code>let</code>: Temporal dead zone</h3>
+                    <div class="fragment">
+                        <p><code>var</code> declarations are <em>hoisted</em>.</p>
+                        <pre><code data-trim class="javascript" data-es="es5">
+function init() {
+    console.log(foo); //Logs: undefined
+    var foo = 42;
+    console.log(foo); //Logs: 42
+}
+                        </code></pre>
+                    </div>
+                    <div class="fragment">
+                        <p><code>let</code>-declared variables cannot be used in their block before
+                        the declaration .</p>
+                        <pre><code data-trim class="javascript" data-es="es6">
+function init() {
+    //console.log(foo); //ReferenceError: foo is uninitialized
+    let foo = 42;
+    console.log(foo); //Logs: 42
+}
+                        </code></pre>
+                    </div>
+                </section>
+                    
+                    
+                <section>
+                    <h3>ES6 <code>let</code>: Temporal dead zone</h3>
+                    <p>If there's a <code>let</code> variable in a block, you can only use
+                        it in the block after its declaration, even if there's another
+                        such variable in the outer scope.</p>
+                    <pre><code data-trim class="javascript" data-es="es6">
+function init() {
+    let foo = 123;
+    if (true) {
+        // consle.log(foo); //ReferenceError: foo is uninitialized
+        let foo = 456;
+        console.log(foo); //Logs: 456
+    }
+    console.log(foo); //Logs: 123
+}
+                    </code></pre>
+                </section>
+                    
+                    
+                    
+                    
+
+                <section>
+                    <h3>Lack of string methods</h3>
+                    <ol>
+                        <li>How to check whether a string starts/ends with a substring?</li>
+                        <li>&hellip; or whether it contains a substring?</li>
+                        <li>Repeat a string N times?</li>
+                    </ol>
+                    <pre class="fragment"><code data-trim class="javascript" data-es="es5">
+// 1
+"shop.example.com".indexOf("shop") === 0;
+
+var haystack = "foo.bar.example.com";
+var needle = "example.com"
+haystack.slice(-needle.length) === needle;
+
+
+// 2
+" item message error ".indexOf(" message ") >= 0
+~" item message error ".indexOf(" message ") // returns a truthy/falsy value
+
+// 3
+(new Array(4)).join("la") // lalala
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3 data-no-longer-broken><del>Lack of string methods</del></h3>
+                    <h3 data-fix="es6"><ins>extra string methods</ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es6">
+"shop.example.com".startsWith("shop.")        // true
+
+"foo.bar.example.com".endsWith("example.com") // true
+
+" item message error ".contains(" message ")  // true
+
+"la".repeat(3)                                // "lalala"
+
+
+// Some unicode / UTF-16 methods, mostly unimplemented yet:
+"abc".normalize();
+"∑".codePointAt(0);
+String.fromCodePoint(0x2F804);                // A japanese character
+                    </code></pre>
+                </section>
+
+                    
+
+                    
+                <section>
+                    <h3>Hard time printing strings</h3>
+                    <pre><code data-trim class="javascript" data-es="es5">
+var slideIndex = 0;
+var slideCount = 5;
+$slide.append(
+    "&lt;div>" +
+        "&lt;p>Slide " + (slideIndex + 1) + " of " + slideCount + "&lt;/p>" +
+    "&lt;/div>"
+);
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3 data-no-longer-broken><del>Hard time printing strings</del></h3>
+                    <h3 data-fix="es6"><ins>template strings with interpolation</ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es6">
+var slideIndex = 0;
+var slideCount = 5;
+$slide.append(`
+    &lt;div>
+        &lt;p>Slide ${slideIndex + 1} of ${slideCount}&lt;/p>
+    &lt;/div>
+`);
+                    </code></pre>
+                    <p class="fragment">Yes, they are multiline.</p>
+                </section>
+                    
+                    
+                    
+                    
+                <section>
+                    <h3>No dynamic keys in object literals</h3>
+                    <pre><code data-trim class="javascript" data-es="es5">
+function createClient(name, isOrganization) {
+    var nameKey = isOrganization ? "orgName" : "fullName";
+
+    return {
+        nameKey: name,
+        isOrganization: isOrganization
+    };
+}
+var astronaut = createClient("Neil Armstrong", false); 
+var agency = createClient("NASA", true);
+                    </code></pre>
+                    <div class="fragment">
+                        <p>Property keys are just static!</p>
+                        <pre><code data-trim class="javascript" data-es="es5">
+console.log(astronaut);
+// { nameKey: "Neil Armstrong", isOrganization: false }
+
+console.log(agency);
+// { nameKey: "NASA", isOrganization: true }
+                        </code></pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>No dynamic keys in object literals</h3>
+                    <pre><code data-trim class="javascript" data-es="es5">
+function createClient(name, isOrganization) {
+    var nameKey = isOrganization ? "orgName" : "fullName";
+
+    var client = {
+            isOrganization: isOrganization
+        };
+    client[nameKey] = name;
+    return client;
+}
+var astronaut = createClient("Neil Armstrong", false); 
+var agency = createClient("NASA", true);
+                    </code></pre>
+                    <div class="fragment">
+                        <p>Works, but is a bit annoying.</p>
+                        <pre><code data-trim class="javascript" data-es="es5">
+console.log(astronaut);
+// { fullName: "Neil Armstrong", isOrganization: false }
+
+console.log(agency);
+// { orgName: "NASA", isOrganization: true }
+                        </code></pre>
+                    </div>
+                </section>
+                    
+                <section>
+                    <h3 data-no-longer-broken><del>No dynamic keys in object literals</del></h3>
+                    <h3 data-fix="es6"><ins>bracket notation in object literals</ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es6">
+function createClient(name, isOrganization) {
+    var nameKey = isOrganization ? "orgName" : "fullName";
+
+    return {
+        [nameKey]: name,
+        isOrganization: isOrganization
+    };
+}
+var astronaut = createClient("Neil Armstrong", false); 
+var agency = createClient("NASA", true);
+                    </code></pre>
+                    <pre class="fragment"><code data-trim class="javascript" data-es="es6">
+console.log(astronaut);
+// { fullName: "Neil Armstrong", isOrganization: false }
+
+console.log(agency);
+// { orgName: "NASA", isOrganization: true }
+                    </code></pre>
+                </section>
+                    
+                    
+                    
+                    
+                <section>
+                    <h3>Lack of support for declaring object shape</h3>
+                    <pre class="long"><code data-trim class="javascript" data-es="es5">
+function Person(name) {
+    this.name = name;
+}
+
+Person.prototype.introduce = function() {
+    console.log("Hi, I'm " + this.name + "!");
+};
+
+
+function Superhero(name, tagline, powers) {
+    Person.call(this, name);
+    this.tagline = tagline;
+    this.powers = powers;
+}
+Superhero.prototype = Object.create(Person.prototype);
+Superhero.prototype.constructor = Superhero;
+
+Superhero.prototype.hasManyPowers = function() {
+    return this.powers.length >= 2;
+};
+
+Superhero.prototype.introduce = function() {
+    Person.prototype.introduce.call(this);
+    console.log(this.tagline);
+};
+                    </code>
+                    <code class="javascript overlaid usage" data-trim>
+var superman = new Superhero(
+        "Clark Kent",
+        "Up, up and away!",
+        ["flight", "heat vision"]
+);
+superman.introduce();
+/* Logs:
+Hi, I'm Clark Kent!
+Up, up and away! */
+                    </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <h3 data-no-longer-broken><del>Lack of support for declaring object shape</del></h3>
+                    <h3 data-fix="es6"><ins>Classes</ins></h3>
+                    <pre class="long"><code data-trim class="javascript" data-es="es6">
+class Person {
+    constructor(name) {
+        this.name = name;
+    }
+    introduce() {
+        console.log("Hi, I'm " + this.name + "!");
+    }
+}
+
+class Superhero extends Person {
+    constructor(name, tagline, powers) {
+        super( name);
+        this.tagline = tagline;
+        this.powers = powers;        
+    }
+    hasManyPowers() {
+        this.powers.length >= 2;
+    }
+    introduce() {
+        super.introduce();
+        console.log(this.tagline);
+    }
+}
+                    </code>
+                    <code class="javascript overlaid usage" data-trim>
+var superman = new Superhero(
+        "Clark Kent",
+        "Up, up and away!",
+        ["flight", "heat vision"]
+);
+superman.introduce();
+/* Logs:
+Hi, I'm Clark Kent!
+Up, up and away! */
+                    </code>
+                    </pre>
+                </section>
+
+                
+                
+                
+                    
+                <section>
+                    <h3>No Maps or other generic containers</h3>
+                    <p>Sample: storing data related to a DOM Node, out of the DOM.</p>
+                    <div class="fragment">
+                        <span id="one"></span><span id="two"></span>
+                        <pre class="long"><code class="javascript" data-es="es5"
+>function createSafeScopeManager() { // for something like Angular's $el.scope()
+    var scopes = {};
+    return {
+        setScope: function(elem, scope) {
+            scopes[elem] = scope;
+        },
+        getScope: function(elem) {
+            return scopes[elem];
+        },
+        scopes: scopes // published for debugging purposes
+    }
+}
+
+var sm = createSafeScopeManager();
+var elemOne = document.getElementById("one");
+var elemTwo = document.getElementById("two");
+
+sm.setScope(elemOne, { name: "scopeOne" });
+sm.setScope(elemTwo, { name: "scopeTwo" });
+
+console.log( sm.getScope(elemOne) );
+console.log( sm.getScope(elemTwo) );
+                        </code>
+                        <div class="overlaid">
+                            <code class="fragment" class="javascript">
+                                             // { name: "scopeTwo" }
+                                             // { name: "scopeTwo" }
+                            </code>
+                            <code class="fragment" class="javascript">
+console.log( Object.keys(sm.scopes) );</code>
+                            <code class="fragment" class="javascript">
+                                             // ["[object HTMLSpanElement]"]</code>
+                        </div>
+                        </pre>
+                    </div>
+                    <p class="fragment">Object keys are always converted to strings. </p>
+                </section>
+                    
+                <section>
+                    <h3 data-no-longer-broken>No Maps and other generic containers</h3>
+                    <h3 data-fix="es6"><ins><code>Map</code>, <code>Set</code>, <code>WeakMap</code>&hellip;</ins></h3>
+                    <pre class="fragment long"><code data-trim class="javascript" data-es="es6">
+function createSafeScopeManager() {
+    var scopes = new Map();
+    return {
+        setScope: function(elem, scope) {
+            scopes.set(elem, scope);
+        },
+        getScope: function(elem) {
+            return scopes.get(elem);
+        }
+    }
+}
+
+var sm = createSafeScopeManager();
+var elemOne = document.getElementById("one");
+var elemTwo = document.getElementById("two");
+
+sm.setScope(elemOne, { name: "scopeOne" });
+sm.setScope(elemTwo, { name: "scopeTwo" });
+
+console.log( sm.getScope(elemOne) );
+console.log( sm.getScope(elemTwo) );
+                    
+                        </code>
+                        <div class="overlaid">
+                            <code class="fragment" class="javascript">
+                                             // { name: "scopeOne" }
+                                             // { name: "scopeTwo" }</code>
+                        </div>
+                    </pre>
+                </section>
+                
+                
+                
+                
+                <section>
+                    <h3>Difference between Maps and WeakMaps</h3>
+                    <ul class="fragment">
+                        <li>Maps allow you to iterate over all entries (e.g. through for-of)</li>
+                        <li>WeakMaps don't give you any API for grabbing all entries&hellip;</li>
+                        <li>&hellip;so if you want to grab a value, you need to know its key.</li>
+                    </ul>
+                    <p>&nbsp;</p>
+                    <p class="fragment">So what?</p>
+                    <div class="fragment">
+                        <ul>
+                            <li>So the JS engine can be sure that if there's no references to
+                                the key, it can safely garbage-collect the value (optimization!).</li>
+                    </div>
+                </section>
+                
+                
+                
+                
+
+                <section>
+                    <h3>Prototypes and private state don't mix</h3>
+                    <pre><code data-trim class="javascript" data-es="es5">
+(function(global) {
+    var ADULT_AGE = 18; // private, but common to all instances
+
+    function Person(name) {
+        this._name = name;
+    }
+
+    Person.prototype.introduce = function() {
+        console.log("Hi, I'm " + this._name + "!");
+    };
+    
+    global.Person = Person;
+})(window);
+                    </code>
+                    </pre>
+                    <ul class="fragment">
+                        <li><code>_name</code> is not really private</li>
+                        <li>We could make it private if we dropped prototypes in favor of closures</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h3 data-no-longer-broken>Prototypes and private state don't mix</h3>
+                    <h3 data-fix="es6"><ins>Symbols</ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es5">
+(function(global) {
+    var nameKey = Symbol();
+    
+    function Person(name) {
+        this[nameKey] = name;
+    }
+
+    Person.prototype.introduce = function() {
+        console.log("Hi, I'm " + this[nameKey] + "!");
+    };
+    
+    global.Person = Person;
+})(window);
+                    </code>
+                    </pre>
+                    <ul class="fragment">
+                        <li>Each Symbol is guaranteed to be unique</li>
+                        <li>Symbols are skipped by: for-in, for-of, <code>Object.keys()</code></li>
+                        <li class="fragment">Symbols are still listed by (ES6): <code>Reflect.ownKeys()</code> and <code>Object.getOwnPropertySymbols()</code>
+                            <p>&hellip;so not fully private &ndash; accessible through reflection (like Java)</p>
+                        
+                        </li>
+                    </ul>
+                </section>
+                
+                
+                
+                
+                <section>
+                    <h3 data-no-longer-broken>Prototypes and private state don't mix</h3>
+                    <h3 data-fix="es6"><ins>WeakMaps</ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es5">
+(function(global) {
+    var NAMES = new WeakMap();
+    
+    function Person(name) {
+        NAMES.set(this, name);
+    }
+
+    Person.prototype.introduce = function() {
+        console.log("Hi, I'm " + NAMES.get(this) + "!");
+    };
+    
+    global.Person = Person;
+})(window);
+                    </code>
+                    </pre>
+                    <p class="fragment">The <code>NAMES</code> map stores all names, each stored for a particular
+                    <code>Person</code>.</p>
+                    <p class="fragment">This time, really private, as no one else has access to <code>NAMES</code>.</p>
+                </section>
+
+                    
+                    
+                
+                    
+                <section>
+                    <h3>'<code>arguments</code>' sux</h3>
+                    <pre class="fragment"><code data-trim class="javascript" data-es="es5">
+function fixture(collectionName/*, items*/) {
+    var items = [].slice.call(arguments, 1);
+    items.forEach(function() {
+        db.insert(collectionName, items);
+    });
+}
+                    </code></pre>
+                    <ul class="fragment">
+                        <li>Another magic, implicit identifier</li>
+                        <li>The parameters are not listed in the function header</li>
+                        <li><code>Array.isArray(arguments) === false</code></li>
+                        <li>Setting <code>arguments[0]</code> would mutate <code>collectionName</code></li>
+                        <li>No support to grab "all parameters after the n-th one" (like here)</li>
+                    </ul>
+                </section>
+                    
+                    
+                <section>
+                    <h3 data-no-longer-broken>'<code>arguments</code>' sux</h3>
+                    <h3 data-fix="es6"><ins><ins>Rest parameters</ins></ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es6">
+function fixture(collectionName, ...items) {
+    items.forEach(function() {
+        db.insert(collectionName, items);
+    });
+}
+                    </code></pre>
+                    <ul class="fragment">
+                        <li>We pick any parameter name we want</li>
+                        <li><code>Array.isArray(items) === true</code></li>
+                    </ul>
+                </section>
+                    
+
+        
+        
+                    
+                <section>
+                    <h3>No native <code>import</code>/<code>require</code></h3>
+                    <p>Only universal way: global variables, possibly namespaced.</p>
+                    <pre><code data-trim class="javascript" data-es="es6">
+// myHelper.js
+var MYAPP = MYAPP || {};
+MYAPP.myHelper = {
+    help: function() {
+        // ...
+    },
+    meaningOfLife: 42
+}
+
+// myComponent.js
+var MYAPP = MYAPP || {};
+MYAPP.MyComponent = function() {
+    MYAPP.myHelper.help();
+    // ...
+};
+                    </code></pre>
+                </section>
+                
+                <section>
+                    <h3 data-no-longer-broken>No native <code>import</code>/<code>require</code></h3>
+                    <h3 data-fix="partial library"><ins>AMD (mostly client-side)</ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es5">
+// myHelper.js
+define("myHelper", function() {
+    return {
+        help: function() {
+            // ...
+        },
+        meaningOfLife: 42
+    };
+});
+
+// myComponent.js
+define("myComponent", ["meHelper.js"], function(myHelper) {
+    function MyComponent() {
+        myHelper.help();
+        // ...
+    }
+    
+    return MyComponent;
+});                    
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3 data-no-longer-broken>No native <code>import</code>/<code>require</code></h3>
+                    <h3 data-fix="partial library"><ins>CommonJS (mostly server-side)</ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es5">
+// myHelper.js
+exports.help = function() {
+    // ...
+};
+exports.meaningOfLife = 42;
+
+// myComponent.js
+var myHelper = require("myHelper.js");
+exports = MyComponent;
+
+function MyComponent() {
+    myHelper.help();
+    // ...
+}
+                    </code></pre>
+                </section>
+                
+                
+                <section>
+                    <h3 data-no-longer-broken>No native <code>import</code>/<code>require</code></h3>
+                    <h3 data-fix="es6"><ins><ins>Modules</ins></ins></h3>
+                    <pre><code data-trim class="javascript" data-es="es6">
+// myHelper.js
+export function help() {
+    // ...
+}
+export const meaningOfLife = 42;
+
+// myComponent.js
+import * as myHelper from "myHelper.js";
+
+export default function MyComponent() {
+    myHelper.help();
+    // ...
+}
+                    </code></pre>
+                    <div class="fragment">
+                        <p>Or:</p>
+                    <pre><code data-trim class="javascript" data-es="es6">
+// myComponent.js
+import { help, meaningOfLife } from "myHelper.js";
+
+export default function MyComponent() {
+    help();
+    // ...
+}
+                    </code></pre>
+                    </div>
+                </section>
+                
+
+                
+                
+                <section>
+                    <h3>Repeating <code>'use strict'</code> all over again</h3>
+                    <pre class="fragment"><code data-trim class="javascript" data-es="es5">
+// Some non-strict lib, like jQuery
+(function() {
+    // ...
+})();
+
+// Our strict component 1
+(function galleryModule() {
+    "use strict";
+    // ...
+})();
+
+// Our strict component 2
+(function carouselModule() {
+    "use strict";
+    // ...
+})();
+
+                    </code></pre>
+                </section>
+
+                <section>
+                    <h3 data-no-longer-broken><del>Repeating  <code>'use strict'</code> all over again</del></h3>
+                    <h3 data-fix="es6"><ins><ins>Modules &amp; classes</ins></ins></h3>
+                    <p>Module and class bodies are automatically in strict mode.</p>
+                    <p>\o/</p>
+                </section>
+                
+                
+
+                <section>
+                    <h3>Other awesome stuff in ES6</h3>
+                    <ul>
+                        <li>Proxies</li>
+                        <li>Iterators / Generators</li>
+                        <li>Destructuring</li>
+                        <li>Splats</li>
+                        <li>More array methods</li>
+                        <li>Typed arrays</li>
+                    </ul>
+                    <p>&nbsp;<!-- please forgive me --></p>
+                    <h3>And for ES7 (and later)</h3>
+                    <ul>
+                        <li>Object.observe()</li>
+                        <li>Async functions</li>
+                        <li>Value objects and operator overloading</li>
+                        <li>SIMD</li>
+                    </ul>
+                </section>
+                
+                
+                
+                <section>
+                    <h1>The end</h1>
+                    <h2>Thank you!</h2>
+					<p>
+						<small>Keep Icebergin'! Bartek Swierczynski / <a href="http://twitter.com/bswierczynski">@bswierczynski</a></small>
+					</p>
+                </section>
+                
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: false,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
